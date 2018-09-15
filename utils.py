@@ -16,20 +16,36 @@ class Student:
         we = list()
         for a in self.assignments:
             if a.group == "Weekly":
-                we.append(a.assignment)
-        we.sort()
+                we.append(a)
         return we
 
-    def getAssignment(self, name=None):
+    def getFirstAssignmentByName(self, name=None):
         assert name is not None
         for a in self.assignments:
             if a.assignment == name:
                 return a
         return None
 
-    def getPercentScore(self, name=None):
+    def getWeeklyAssignmentByName(self, name=None):
         assert name is not None
-        assignment = self.getAssignment(name=name)
+        weeklyAssignments = self.getWeeklyExercises()
+        for a in weeklyAssignments:
+            if a.assignment == name:
+                return a
+        return None
+
+    def getPercentScoreOfWeeklyAssignmentByName(self, name=None):
+        assert name is not None
+        assignment = self.getWeeklyAssignmentByName(name=name)
+        if assignment is None:
+            return 0
+        if float(assignment.max) == float(assignment.score):
+            return 1
+        return (float(assignment.score) / float(assignment.max))
+
+    def getFirstPercentScore(self, name=None):
+        assert name is not None
+        assignment = self.getFirstAssignmentByName(name=name)
         if assignment is None:
             return 0
         if float(assignment.max) == 0:
@@ -91,9 +107,12 @@ def getAssignmentsFromOnePage(studentsList=None, baseUrl=None, pageNumber=None, 
         score = tds[3].text
         max = tds[4].text
 
+        # print("id: ", id, ", assignment: ", assignment, " group: ", group)
+
         assignment = Assignment(group=group, assignment=assignment, score=score, max=max)
 
         student = getStudent(id=id, students=studentsList)
+
 
         if student is None:
             newStudent = Student(id=id)

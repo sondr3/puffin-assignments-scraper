@@ -3,7 +3,7 @@ import xlsxwriter
 from utils import *
 import time
 
-baseUrl = "https://puffin.ii.uib.no/submissions/?category=&group=&assignment=&filtering=my-student"
+baseUrl = "https://puffin.ii.uib.no/submissions/?category=&group=&assignment=&filtering=my-student&sort=-assignment__group__name"
 profileUrl = "https://puffin.ii.uib.no/account/profile/"
 cookie = ""
 headers = { "Cookie": cookie }
@@ -27,15 +27,15 @@ for i in range(len(currentAssignments)):
     worksheet.write(0, i + 2, currentAssignments[i])
 
 for i in range(len(students)):
-    worksheet.write(i + 1, 0, students[i].id)
-    worksheet.write(i + 1, 1, students[i].name)
-    weekly = students[i].getWeeklyExercises()
+
+    currentSudent = students[i]
+    worksheet.write(i + 1, 0, currentSudent.id)
+    worksheet.write(i + 1, 1, currentSudent.name)
 
     for j in range(len(currentAssignments)):
         assignment = currentAssignments[j]
-        studentScore = students[i].getPercentScore(assignment)
-        if studentScore is not None:
-            worksheet.write(i + 1, j + 2, studentScore)
+        studentScore = currentSudent.getPercentScoreOfWeeklyAssignmentByName(assignment)
+        worksheet.write(i + 1, j + 2, studentScore)
 
 # Light red fill with dark red text.
 format1 = workbook.add_format({'bg_color':   '#FFC7CE',
