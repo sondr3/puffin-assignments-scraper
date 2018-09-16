@@ -1,3 +1,6 @@
+from dataclasses import dataclass, field
+from typing import List
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -9,13 +12,12 @@ def find(f, seq):
             return item
 
 
+@dataclass
 class Student:
-    def __init__(self, id=None, name="No Name"):
-        assert id is not None
-        self.id = id
-        self.name = name
-        self.bookExercises = list()
-        self.weeklyExercises = list()
+    id: str = None
+    name: str = "No name"
+    bookExercises: List[str] = field(default_factory=list)
+    weeklyExercises: List[str] = field(default_factory=list)
 
     def get_exercise_score(self, group, name):
         exercise = self.get_exercise(group, name)
@@ -41,13 +43,12 @@ class Student:
             self.bookExercises.append(exercise)
 
 
+@dataclass
 class Assignment:
-    def __init__(self, group, assignment, score, max):
-
-        self.group = group
-        self.assignment = assignment
-        self.score = score
-        self.max = max
+    group: str
+    assignment: str
+    score: float
+    max: float
 
     def __str__(self):
         return self.group + ": " + self.assignment
@@ -59,8 +60,8 @@ class Assignment:
             return float(self.score) / float(self.max)
 
 
-def get_student(id, students):
-    return find(lambda student: student.id == id, students)
+def get_student(student_id, students):
+    return find(lambda student: student.id == student_id, students)
 
 
 def find_no_pages(base_url, headers):

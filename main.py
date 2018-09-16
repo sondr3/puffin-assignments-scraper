@@ -4,23 +4,23 @@ import xlsxwriter
 
 from utils import *
 
-baseUrl = "https://puffin.ii.uib.no/submissions/?category=&group=&assignment=&filtering=my-student&sort=-assignment__group__name"
-profileUrl = "https://puffin.ii.uib.no/account/profile/"
+base_URL = "https://puffin.ii.uib.no/submissions/?category=&group=&assignment=&filtering=my-student&sort=-assignment__group__name"
+profile_URL = "https://puffin.ii.uib.no/account/profile/"
 cookie = ""
 headers = {"Cookie": cookie}
 
 students = list()
-get_students(profileUrl, headers, students)
-noPages = find_no_pages(baseUrl, headers)
+get_students(profile_URL, headers, students)
+no_pages = find_no_pages(base_URL, headers)
 
-for i in range(noPages):
-    get_assignments_from_one_page(students, baseUrl, (i + 1), headers)
+for i in range(no_pages):
+    get_assignments_from_one_page(students, base_URL, (i + 1), headers)
 
 workbook = xlsxwriter.Workbook(str(time.time()) + ".xlsx")
 worksheet = workbook.add_worksheet()
 
 current_assignments = ["Assignment 0", "Assignment 1", "Assignment 2", "Assignment 3"]
-dataArea = (
+data_area = (
     "C2:" + get_letter_index(len(current_assignments) + 2) + str(len(students) + 1)
 )
 
@@ -49,7 +49,7 @@ format2 = workbook.add_format({"bg_color": "#FFEB9C", "font_color": "#9C6500"})
 format3 = workbook.add_format({"bg_color": "#C6EFCE", "font_color": "#006100"})
 
 worksheet.conditional_format(
-    dataArea,
+    data_area,
     {
         "type": "cell",
         "criteria": "between",
@@ -60,11 +60,11 @@ worksheet.conditional_format(
 )
 
 worksheet.conditional_format(
-    dataArea, {"type": "cell", "criteria": "equal to", "value": 1, "format": format3}
+    data_area, {"type": "cell", "criteria": "equal to", "value": 1, "format": format3}
 )
 
 worksheet.conditional_format(
-    dataArea, {"type": "cell", "criteria": "equal to", "value": 0, "format": format1}
+    data_area, {"type": "cell", "criteria": "equal to", "value": 0, "format": format1}
 )
 
 workbook.close()
