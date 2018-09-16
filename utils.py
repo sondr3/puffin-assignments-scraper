@@ -13,37 +13,6 @@ def find(f, seq):
 
 
 @dataclass
-class Student:
-    id: str = None
-    name: str = "No name"
-    bookExercises: List[str] = field(default_factory=list)
-    weeklyExercises: List[str] = field(default_factory=list)
-
-    def get_exercise_score(self, group, name):
-        exercise = self.get_exercise(group, name)
-        if exercise is None:
-            return 0
-        else:
-            return exercise.get_percentage_score()
-
-    def get_exercise(self, group, name):
-        if group == "Weekly":
-            return find(
-                lambda exercise: exercise.assignment == name, self.weeklyExercises
-            )
-        else:
-            return find(
-                lambda exercise: exercise.assignment == name, self.bookExercises
-            )
-
-    def add_exercise(self, exercise):
-        if exercise.group == "Weekly":
-            self.weeklyExercises.append(exercise)
-        else:
-            self.bookExercises.append(exercise)
-
-
-@dataclass
 class Assignment:
     group: str
     assignment: str
@@ -69,6 +38,37 @@ def find_no_pages(base_url, headers):
     soup = BeautifulSoup(response.text, features="html.parser")
     lis = soup.find_all("li", {"class": "page-item"})
     return int(lis[3].text)
+
+
+@dataclass
+class Student:
+    id: str = None
+    name: str = "No name"
+    book_exercises: List[Assignment] = field(default_factory=list)
+    weekly_exercises: List[Assignment] = field(default_factory=list)
+
+    def get_exercise_score(self, group, name):
+        exercise = self.get_exercise(group, name)
+        if exercise is None:
+            return 0
+        else:
+            return exercise.get_percentage_score()
+
+    def get_exercise(self, group, name):
+        if group == "Weekly":
+            return find(
+                lambda exercise: exercise.assignment == name, self.weekly_exercises
+            )
+        else:
+            return find(
+                lambda exercise: exercise.assignment == name, self.book_exercises
+            )
+
+    def add_exercise(self, exercise):
+        if exercise.group == "Weekly":
+            self.weekly_exercises.append(exercise)
+        else:
+            self.book_exercises.append(exercise)
 
 
 def get_assignments_from_one_page(students_list, base_url, page_number, headers):
