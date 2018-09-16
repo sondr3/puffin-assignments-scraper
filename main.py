@@ -9,11 +9,11 @@ cookie = ""
 headers = { "Cookie": cookie }
 
 students = list()
-getStudents(url=profileUrl, headers=headers, studentsList=students)
-noPages = findNoPages(baseUrl=baseUrl, headers=headers)
+getStudents(profileUrl, headers, students)
+noPages = findNoPages(baseUrl, headers)
 
 for i in range(noPages):
-    getAssignmentsFromOnePage(studentsList=students, baseUrl=baseUrl, pageNumber=(i + 1), headers=headers)
+    getAssignmentsFromOnePage(students, baseUrl, (i + 1), headers)
 
 workbook = xlsxwriter.Workbook(str(time.time()) + '.xlsx')
 worksheet = workbook.add_worksheet()
@@ -27,14 +27,13 @@ for i in range(len(currentAssignments)):
     worksheet.write(0, i + 2, currentAssignments[i])
 
 for i in range(len(students)):
-
     currentSudent = students[i]
     worksheet.write(i + 1, 0, currentSudent.id)
     worksheet.write(i + 1, 1, currentSudent.name)
 
     for j in range(len(currentAssignments)):
         assignment = currentAssignments[j]
-        studentScore = currentSudent.getPercentScoreOfWeeklyAssignmentByName(assignment)
+        studentScore = currentSudent.getExerciseScore("Weekly", assignment)
         worksheet.write(i + 1, j + 2, studentScore)
 
 # Light red fill with dark red text.
