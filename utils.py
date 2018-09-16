@@ -10,7 +10,6 @@ def find(f, seq):
 
 
 class Student:
-
     def __init__(self, id=None, name="No Name"):
         assert id is not None
         self.id = id
@@ -18,20 +17,24 @@ class Student:
         self.bookExercises = list()
         self.weeklyExercises = list()
 
-    def getExerciseScore(self, group, name):
-        exercise = self.getExercise(group, name)
+    def get_exercise_score(self, group, name):
+        exercise = self.get_exercise(group, name)
         if exercise is None:
             return 0
         else:
-            return exercise.getPercentageScore()
+            return exercise.get_percentage_score()
 
-    def getExercise(self, group, name):
+    def get_exercise(self, group, name):
         if group == "Weekly":
-            return find(lambda exercise: exercise.assignment == name, self.weeklyExercises)
+            return find(
+                lambda exercise: exercise.assignment == name, self.weeklyExercises
+            )
         else:
-            return find(lambda exercise: exercise.assignment == name, self.bookExercises)
+            return find(
+                lambda exercise: exercise.assignment == name, self.bookExercises
+            )
 
-    def addExercise(self, exercise):
+    def add_exercise(self, exercise):
         if exercise.group == "Weekly":
             self.weeklyExercises.append(exercise)
         else:
@@ -39,7 +42,6 @@ class Student:
 
 
 class Assignment:
-
     def __init__(self, group, assignment, score, max):
 
         self.group = group
@@ -48,74 +50,73 @@ class Assignment:
         self.max = max
 
     def __str__(self):
-        return (self.group + ": " + self.assignment)
+        return self.group + ": " + self.assignment
 
-    def getPercentageScore(self):
+    def get_percentage_score(self):
         if float(self.max) == 0:
             return 1
         else:
             return float(self.score) / float(self.max)
 
 
-def getStudent(id, students):
+def get_student(id, students):
     return find(lambda student: student.id == id, students)
 
 
-def findNoPages(baseUrl, headers):
-    response = requests.get(baseUrl, headers=headers)
+def find_no_pages(base_url, headers):
+    response = requests.get(base_url, headers=headers)
     soup = BeautifulSoup(response.text, features="html.parser")
     lis = soup.find_all("li", {"class": "page-item"})
     return int(lis[3].text)
 
 
-def getAssignmentsFromOnePage(studentsList, baseUrl, pageNumber, headers):
-    response = requests.get(baseUrl + "&page=" +
-                            str(pageNumber), headers=headers)
+def get_assignments_from_one_page(students_list, base_url, page_number, headers):
+    response = requests.get(base_url + "&page=" + str(page_number), headers=headers)
     soup = BeautifulSoup(response.text, features="html.parser")
     trs = soup.find_all("tr")
     for i in range(1, len(trs)):
         tds = trs[i].find_all("td")
-        id = tds[0].text
+        assignment_id = tds[0].text
         assignment = tds[1].text
         group = tds[2].text
         score = tds[3].text
-        max = tds[4].text
+        assignment_max = tds[4].text
 
         # print("id: ", id, ", assignment: ", assignment, " group: ", group)
 
-        assignment = Assignment(group, assignment, score, max)
-        student = getStudent(id, studentsList)
+        assignment = Assignment(group, assignment, score, assignment_max)
+        student = get_student(assignment_id, students_list)
 
         if student is None:
-            newStudent = Student(id=id)
-            newStudent.addAssignment(assignment)
-            studentsList.append(newStudent)
-            newStudent.addExercise(assignment)
+            new_student = Student(id=assignment_id)
+            students_list.append(new_student)
+            new_student.add_exercise(assignment)
         else:
-            student.addExercise(assignment)
+            student.add_exercise(assignment)
 
 
-def getStudents(url, headers, studentsList):
+def get_students(url, headers, students_list):
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, features="html.parser")
     lis = soup.find_all("li")
-    noPages = int(lis[len(lis) - 2].text)
-    for i in range(noPages):
-        getStudentsFromPage(url, headers, studentsList, (i + 1))
+    no_pages = int(lis[len(lis) - 2].text)
+    for i in range(no_pages):
+        get_students_from_page(url, headers, students_list, (i + 1))
 
 
-def getStudentsFromPage(baseUrl, headers, studentsList, pageNumber):
-    response = requests.get(baseUrl + "?student_page=" +
-                            str(pageNumber), headers=headers)
+def get_students_from_page(base_url, headers, students_list, page_number):
+    response = requests.get(
+        base_url + "?student_page=" + str(page_number), headers=headers
+    )
     soup = BeautifulSoup(response.text, features="html.parser")
     ls = soup.find("div", id="recommended_list")
     a = ls.find_all("a", {"data-toggle": "collapse"})
     for person in a:
         divs = person.find_all("div")
-        newStudent = Student(id=divs[1].text, name=divs[0].text)
-        studentsList.append(newStudent)
+        new_student = Student(id=divs[1].text, name=divs[0].text)
+        students_list.append(new_student)
 
 
-def getLetterIndex(i):
+def get_letter_index(i):
     letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     return letters[i - 1]
